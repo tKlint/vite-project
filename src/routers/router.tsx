@@ -1,7 +1,8 @@
 import { lazy } from "react";
 import { Route } from "react-router-dom";
 import App from "../App";
-import Home from "../components/Home";
+import BasicLayout from "../layout/BasicLayout";
+import Dashboard from "../pages/dashboard";
 import Login from "../pages/login";
 
 export interface RouterConfig  {
@@ -13,8 +14,8 @@ export interface RouterConfig  {
     free?: boolean;
 };
 
-type RoutersConfig = {
-    children?: RouterConfig[];
+export type RoutersConfig = {
+    children?: RoutersConfig[];
 } & RouterConfig;
 
 const LazyHome = lazy(() => import('../pages/login'))
@@ -23,26 +24,38 @@ export const router: RoutersConfig[] = [
     {
         path: '/',
         name: 'app',
-        element: <Home />,
+        element: <BasicLayout />,
         children: [
             {
                 path: '/', 
-                name: 'index', 
-                element: <App />,
+                name: 'dashboard', 
+                element: <Dashboard />,
                 index: true
             }, {
-                path: '/login',
-                name: 'login', 
+                path: 'login2',
+                name: 'login2', 
                 element: <Login/>,
-                free: true
+                free: true,
+                children: [
+                   {
+                        path: 'async2',
+                        name: 'async2', 
+                        element: <Login />,
+                        free: true
+                    }
+                ]
             }, {
                 path: '/async',
                 name: 'async', 
-                element: <LazyHome />,
+                element: <Login />,
                 free: true
             }
         ]
-    },
+    }, {
+        path: '/login',
+        name: 'login',
+        element: <Login />,
+    }
 
 ]
 

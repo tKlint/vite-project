@@ -9,20 +9,26 @@
   },
   "dependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "umi-request": "^1.4.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "@reduxjs/toolkit": "^1.8.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^1.3.0",
     "antd": "^4.20.7",
     "dva": "^2.4.1",
     "dvajs": "^0.1.8",
+    "http-proxy-middleware": "^2.0.6",
+    "less": "^4.1.2",
     "react-loadable": "^5.5.0",
+    "react-redux": "^8.0.2",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
+    "redux": "^4.2.0",
     "typescript": "^4.6.3",
+    "umi-request": "^1.4.0",
     "vite": "^2.9.9"
   }
 }

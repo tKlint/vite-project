@@ -54,12 +54,10 @@ export class Ball implements IBall {
             const yPow = Math.pow(this.y - ball.y, 2);
             if (Math.sqrt(xPow + yPow) <= 100) {
                 this.ctx.strokeStyle = this.color;
-                // this.r += 1;
                 this.ctx.moveTo(this.x, this.y);
                 this.ctx.lineTo(ball.x, ball.y);
                 this.ctx.stroke();
             }
-
         }
         this.ctx.closePath();
     }
