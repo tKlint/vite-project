@@ -8,14 +8,12 @@ import {
 } from '@ant-design/icons';
 import { router, RoutersConfig } from "../routers/router";
 import HeaderLayout from "./HeaderLayout";
-
-
 import { Layout } from 'antd';
+import FootLayout from "./FootLayout";
 
 const { Header, Footer, Sider, Content } = Layout;
 
 const BasicLayout: React.FC<{}> = props => {
-    const isLogin = localStorage.getItem('access-token');
     const navigate = useNavigate();
     type MenuItem = Required<MenuProps>['items'][number];
     function getItem(
@@ -38,7 +36,6 @@ const BasicLayout: React.FC<{}> = props => {
 
     const createMenuItemsWithRouter = (router: RoutersConfig[], parentName?: string, pathUrl?: string): MenuItem[] => {
         return router.map(item => {
-            // const uniKey = parentName ? `${parentName}.${item.name}` : item.name;
             const currentPath = item.path === '/' ? '/' : `${pathUrl || ''}/${item.path}`;
             return getItem(
                 item.name,
@@ -54,7 +51,7 @@ const BasicLayout: React.FC<{}> = props => {
         navigate(e.key);
     };
 
-    return isLogin ? (
+    return (
         <>
             <Header>
                 <HeaderLayout />
@@ -78,11 +75,11 @@ const BasicLayout: React.FC<{}> = props => {
                         </Suspense>
                     </Content>
                     <Footer>
-                        this is a foot
+                        <FootLayout />
                     </Footer>
                 </Layout>
             </Layout>
         </>
-    ) : <Navigate to="/login" />
+    )
 }
 export default BasicLayout;

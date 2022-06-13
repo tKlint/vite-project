@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Route } from "react-router-dom";
 import App from "../App";
 import BasicLayout from "../layout/BasicLayout";
+import SecurityLayout from "../layout/SecurityLayout";
 import Dashboard from "../pages/dashboard";
 import Login from "../pages/login";
 
@@ -24,7 +25,7 @@ export const router: RoutersConfig[] = [
     {
         path: '/',
         name: 'app',
-        element: <BasicLayout />,
+        element: <SecurityLayout />,
         children: [
             {
                 path: '/', 
