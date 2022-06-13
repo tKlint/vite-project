@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers, AnyAction } from "redux";
 import loginReducer, { LoginState } from "./login";
-import count from './kit'
+import userReucer, { UserState } from './user'
 const rootReduce = combineReducers<{
     loginReducer: LoginState;
-    count: number;
+    userReucer: UserState;
 }, AnyAction>({
     loginReducer,
-    count
+    userReucer
 });
 
 const store = configureStore({
