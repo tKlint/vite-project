@@ -1,11 +1,15 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { combineReducers, AnyAction } from "redux";
-import loginReducer, { LoginState } from "./login";
-import userReucer, { UserState } from './user'
-const rootReduce = combineReducers<{
-    loginReducer: LoginState;
-    userReucer: UserState;
-}, AnyAction>({
+import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, AnyAction } from 'redux';
+import loginReducer, { LoginState } from './login';
+import userReucer, { UserState } from './user';
+
+const rootReduce = combineReducers<
+    {
+        loginReducer: LoginState;
+        userReucer: UserState;
+    },
+    AnyAction
+>({
     loginReducer,
     userReucer
 });
