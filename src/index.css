@@ -19,3 +19,8 @@ code {
   margin: 0;
   padding: 0;
 }
+.grey-text {
+  color: #CCC;
+  font-weight: normal;
+  font-size: 14;
+}

@@ -1,28 +1,36 @@
-import { Col, Menu, MenuProps, Row } from "antd";
-import React, { Suspense } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom"
-import Loading from "../components/Loding";
+import { Menu, MenuProps, Layout } from 'antd';
+import React, { Suspense } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { PieChartOutlined } from '@ant-design/icons';
+import Loading from '../components/Loding';
 
-import {
-    PieChartOutlined,
-} from '@ant-design/icons';
-import { router, RoutersConfig } from "../routers/router";
-import HeaderLayout from "./HeaderLayout";
-import { Layout } from 'antd';
-import FootLayout from "./FootLayout";
+import { router, RoutersConfig } from '../routers/router';
+import HeaderLayout from './HeaderLayout';
+import FootLayout from './FootLayout';
+import menusConfig from '../local/menu.config.json';
 
 const { Header, Footer, Sider, Content } = Layout;
+type MenuItem = Required<MenuProps>['items'][number];
 
-const BasicLayout: React.FC<{}> = props => {
+const BasicLayout: React.FC<Record<string, never>> = () => {
     const navigate = useNavigate();
-    type MenuItem = Required<MenuProps>['items'][number];
+    /**
+     * 获取菜单元素
+     * @param label 菜单秒杀
+     * @param key 唯一符号
+     * @param path 路由地址
+     * @param icon 图标
+     * @param children 子路由
+     * @param type unkonw
+     * @returns 菜单元素
+     */
     function getItem(
         label: React.ReactNode,
         key: React.Key,
         path: string,
         icon?: React.ReactNode,
         children?: MenuItem[],
-        type?: string,
+        type?: string
     ): MenuItem {
         return {
             key,
@@ -30,24 +38,44 @@ const BasicLayout: React.FC<{}> = props => {
             children,
             label,
             path,
-            type,
+            type
         } as MenuItem;
     }
 
-    const createMenuItemsWithRouter = (router: RoutersConfig[], parentName?: string, pathUrl?: string): MenuItem[] => {
-        return router.map(item => {
+    /**
+     * 根据路由配置生成菜单
+     * @param routers 路由配置
+     * @param parentName 父级路由name
+     * @param pathUrl 路由地址
+     * @returns {MenuItem[]}
+     */
+    const createMenuItemsWithRouter = (
+        routers: RoutersConfig[],
+        parentName?: string,
+        pathUrl?: string
+    ): MenuItem[] => {
+        return routers.map((item) => {
             const currentPath = item.path === '/' ? '/' : `${pathUrl || ''}/${item.path}`;
+            const routerItemNameLink = `${parentName}.${item.name}`;
+            const menuName = (menusConfig as Record<string, string>)[routerItemNameLink];
+
             return getItem(
-                item.name,
+                menuName,
                 currentPath,
                 currentPath,
                 <PieChartOutlined />,
-                item.children ? createMenuItemsWithRouter(item.children, currentPath, currentPath) : undefined,
-            )
-        })
-    }
+                item.children
+                    ? createMenuItemsWithRouter(
+                          item.children,
+                          routerItemNameLink,
+                          currentPath
+                      )
+                    : undefined
+            );
+        });
+    };
 
-    const onClick: MenuProps['onClick'] = e => {
+    const onClick: MenuProps['onClick'] = (e) => {
         navigate(e.key);
     };
 
@@ -60,10 +88,10 @@ const BasicLayout: React.FC<{}> = props => {
                 <Sider>
                     <Menu
                         onClick={onClick}
-                        defaultSelectedKeys={[location.pathname]}
+                        defaultSelectedKeys={[window.location.pathname]}
                         mode="inline"
                         theme="light"
-                        items={createMenuItemsWithRouter(router[0].children || [])}
+                        items={createMenuItemsWithRouter(router[0].children || [], 'app')}
                     />
                 </Sider>
                 <Layout>
@@ -80,6 +108,6 @@ const BasicLayout: React.FC<{}> = props => {
                 </Layout>
             </Layout>
         </>
-    )
-}
+    );
+};
 export default BasicLayout;

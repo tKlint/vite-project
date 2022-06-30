@@ -16,4 +16,6 @@ const devConfig = {
     }
 }
 
-module.exports = devConfig;
+module.exports = {
+    devConfig
+};

@@ -1,8 +1,4 @@
-import {
-    createSlice,
-    CaseReducer,
-    createAsyncThunk,
-} from '@reduxjs/toolkit'
+import { createSlice, CaseReducer, createAsyncThunk } from '@reduxjs/toolkit';
 import { LoginData } from '../pages/login';
 import API from '../service/api';
 
@@ -22,13 +18,17 @@ export interface LoginState {
     message?: string;
     subMessage?: string;
     loading?: boolean;
+    updateTimestamp?: number;
 }
 
 type LoginReducer = {
-    [k in Reducers]: CaseReducer<LoginState, {
-        payload: LoginState;
-        type: string;
-    }>;
+    [k in Reducers]: CaseReducer<
+        LoginState,
+        {
+            payload: LoginState;
+            type: string;
+        }
+    >;
 };
 
 export const userLogin = createAsyncThunk<LoginState, LoginData>(
@@ -40,17 +40,19 @@ export const userLogin = createAsyncThunk<LoginState, LoginData>(
         if (code === 200) {
             return {
                 status: LoginStatus.OK,
-                accessToken: data.accessToken
-            }
+                accessToken: data.accessToken,
+                updateTimestamp: new Date().getTime()
+            };
         }
         return {
             status: LoginStatus.ERROR,
             accessToken: '',
             message,
-            subMessage
-        }
+            subMessage,
+            updateTimestamp: new Date().getTime()
+        };
     }
-)
+);
 
 const loginReducer = createSlice<LoginState, LoginReducer, 'login'>({
     name: 'login',
@@ -58,25 +60,33 @@ const loginReducer = createSlice<LoginState, LoginReducer, 'login'>({
         loading: false
     },
     reducers: {
-        [Reducers.LOGIN]: state => state,
-        [Reducers.LOGOUT]: state => ({ status: LoginStatus.ERROR, token: '' }),
+        [Reducers.LOGIN]: (state) => state,
+        [Reducers.LOGOUT]: () => {
+            localStorage.removeItem('access-token');
+            window.location.href = '/login';
+            return { status: LoginStatus.ERROR, token: '' };
+        }
     },
-    extraReducers: builder => {
+    extraReducers: (builder) => {
         builder.addCase(userLogin.pending, (state, action) => {
+            // eslint-disable-next-line no-param-reassign
             state.loading = true;
         });
         // 接口请求返回
         builder.addCase(userLogin.fulfilled, (state, { payload }) => {
-            state.loading = false;
-            state.accessToken = payload.accessToken;
-            state.message = payload.message;
-            state.status = payload.status;
-            state.subMessage = payload.subMessage;
+            return {
+                accessToken: payload.accessToken,
+                message: payload.message,
+                status: payload.status,
+                subMessage: payload.subMessage,
+                updateTimestamp: new Date().getTime()
+            };
         });
         builder.addCase(userLogin.rejected, (state, action) => {
+            // eslint-disable-next-line no-param-reassign
             state.loading = false;
         });
     }
-})
+});
 export const { login, logout } = loginReducer.actions;
 export default loginReducer.reducer;

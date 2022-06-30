@@ -1,0 +1,12 @@
+{
+    "app": "klint",
+    "app.dashboard": "仪表盘",
+    "app.login2": "登陆2",
+    "app.login2.async2": "异步2",
+    "app.async": "一步",
+    "app.contact": "联系人",
+    "app.contact.friendsList": "好友列表",
+    "app.contact.requestList": "请求列表",
+    "login": "登陆",
+    "login.register": "注册"
+}
