@@ -1,36 +1,138 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import dev from './config/DEV.config.js'
-const baseConfig = {
-    plugins: [react()]
-}
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import viteEslint from 'vite-plugin-eslint';
+// import { devConfig } from './config/DEV.config';
+// allowSyntheticDefaultImports
+import path from 'path';
+import vitePluginImp from 'vite-plugin-imp';
 
+export default defineConfig(({ command }) => {
+    return {
+        root: process.cwd(),
+        base: './',
+        mode: 'development',
+        server: {
+            port: 3000,
+            proxy: {
+                '/api': {
+                    target: 'http://127.0.0.1:3001',
+                    changeOrigin: true
+                }
+            }
+        },
+        plugins: [
+            react(),
+            viteEslint({ fix: true, cache: false }),
+            vitePluginImp({
+                libList: [
+                    {
+                        libName: 'antd',
+                        style: (name) => `antd/es/${name}/style`
+                    }
+                ]
+            })
+        ],
+        resolve: {
+            alias: [
+                {
+                    find: /^~/,
+                    replacement: ''
+                },
+                {
+                    find: '@',
+                    replacement: path.resolve(__dirname, './src')
+                }
+            ]
+        },
+        css: {
+            preprocessorOptions: {
+                less: {
+                    javascriptEnabled: true,
+                    modifyVars: {
+                        '@primary-color': '#4377FE'
+                    }
+                }
+            }
+        }
+    };
+});
 
-
-// export default defineConfig({
-//   plugins: [react()],
-//   server: {
-//     proxy: {
-//       '/api': {
-//         target: 'http://url:port',
-//         changeOrigin: true,
-//         rewrite: (path) => path.replace(/^\/api/, '')
-//       }
+// const devConfig = {
+//     root: process.cwd(),
+//     base: './',
+//     mode: 'development',
+//     server: {
+//         port: 3000,
+//         proxy: {
+//             '/api': {
+//                 target: 'http://127.0.0.1:3001',
+//                 changeOrigin: true
+//             }
+//         }
 //     }
-//   }
-// })
+// };
 
-// https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
-    if (command === 'serve') {
-        return {
-            ...baseConfig,
-            ...dev
-        }
-    } else {
-        return {
-            plugins: [react()],
+// devConfig
+// const baseConfig = {
+//     plugins: [
+//         react(),
+//         // {
+//         //     ...viteEslint({
+//         //         fix: true,
+//         //         cache: false
+//         //     })
+//         // }
+//         vitePluginImp({
+//             libList: [
+//                 {
+//                     libName: 'antd',
+//                     style: (name) => `antd/es/${name}/style`
+//                 }
+//             ]
+//         })
+//     ]
+// };
 
-        }
-    }
-})
+// export default defineConfig(({ command, mode }) => {
+//     if (command === 'serve') {
+//         return {
+//             ...baseConfig,
+//             ...devConfig,
+//             resolve: {
+//                 alias: [
+//                     {
+//                         find: /^~/,
+//                         replacement: ''
+//                     },
+//                     {
+//                         find: '@',
+//                         replacement: path.resolve(__dirname, './src')
+//                     }
+//                 ]
+//             },
+//             css: {
+//                 preprocessorOptions: {
+//                     less: {
+//                         javascriptEnabled: true,
+//                         modifyVars: {
+//                             '@primary-color': '#4377FE'
+//                         }
+//                     }
+//                 }
+//             }
+//         };
+//     }
+//     return {
+//         plugins: [
+//             react(),
+//             vitePluginImp({
+//                 libList: [
+//                     {
+//                         libName: 'antd',
+//                         style: (name) => `antd/es/${name}/style`
+//                     }
+//                 ]
+//             })
+//         ]
+//     };
+// });
