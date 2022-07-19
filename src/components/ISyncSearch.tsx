@@ -6,7 +6,7 @@ interface IProps<T> extends SearchProps, React.RefAttributes<InputRef> {
     /**
      * 点击触发事件
      */
-    clicktriggle: (value: string, extral?: Record<string, unknown>) => Promise<T>;
+    clicktriggle?: (value: string, extral?: Record<string, unknown>) => Promise<T>;
     /**
      * 验证输入内容
      */
@@ -26,6 +26,10 @@ interface IProps<T> extends SearchProps, React.RefAttributes<InputRef> {
 
 const ISyncSearch = <T extends object>(props: IProps<T>) => {
     const { clicktriggle, vaildRule, extralCallbackParams, callback } = props;
+    const inputProps = { ...props };
+    delete inputProps.vaildRule;
+    delete inputProps.clicktriggle;
+
     // loading状态
     const [loading, setLoading] = useState<boolean>(false);
     // 输入框校验状态
@@ -41,7 +45,10 @@ const ISyncSearch = <T extends object>(props: IProps<T>) => {
             callback?.err(value);
         } else {
             setLoading(true);
-            const res = await clicktriggle(value, extralCallbackParams);
+            if (!clicktriggle) {
+                return;
+            }
+            const res = await clicktriggle?.(value, extralCallbackParams);
             callback?.ok(res);
             setLoading(false);
         }
@@ -50,7 +57,7 @@ const ISyncSearch = <T extends object>(props: IProps<T>) => {
         <div>
             <Input.Search
                 //  eslint-disable-next-line react/jsx-props-no-spreading
-                {...props}
+                {...inputProps}
                 loading={loading}
                 status={status}
                 onSearch={onSearch}
