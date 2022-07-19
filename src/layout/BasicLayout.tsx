@@ -1,7 +1,11 @@
 import { Menu, MenuProps, Layout } from 'antd';
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { PieChartOutlined } from '@ant-design/icons';
+import Eventer from '@/util/event';
+import useWebSocket, { SendMessage } from 'react-use-websocket';
+import { useAppSelector } from '@/store/hooks';
+import { WebSocketHook } from 'react-use-websocket/dist/lib/types';
 import Loading from '../components/Loding';
 
 import { router, RoutersConfig } from '../routers/router';
@@ -12,8 +16,27 @@ import menusConfig from '../local/menu.config.json';
 const { Header, Footer, Sider, Content } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
+export const socketEvent = new Eventer('sokect');
+export const sockets: Partial<WebSocketHook<MessageEvent<any>>> = {
+    // sendMessage,
+    // sendJsonMessage,
+    // lastMessage,
+    // lastJsonMessage
+};
+
 const BasicLayout: React.FC<Record<string, never>> = () => {
     const navigate = useNavigate();
+    const user = useAppSelector((state) => state.userReucer);
+    const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
+        'ws://127.0.0.1:3002',
+        {
+            queryParams: {
+                uuid: user.uuid
+            }
+        }
+    );
+    // socketEvent.subcribe<SendMessage>(sendMessage);
+
     /**
      * 获取菜单元素
      * @param label 菜单秒杀
@@ -79,6 +102,15 @@ const BasicLayout: React.FC<Record<string, never>> = () => {
         navigate(e.key);
     };
 
+    useEffect(() => {
+        socketEvent.subcribe<SendMessage>(sendMessage);
+    }, []);
+
+    useEffect(() => {
+        if (lastMessage) {
+            socketEvent.emit(lastMessage);
+        }
+    }, [lastMessage, readyState]);
     return (
         <>
             <Header>
@@ -97,9 +129,9 @@ const BasicLayout: React.FC<Record<string, never>> = () => {
                 <Layout>
                     <Content style={{ padding: 16 }}>
                         <Suspense fallback={<Loading />}>
-                            <React.StrictMode>
-                                <Outlet />
-                            </React.StrictMode>
+                            {/* <React.StrictMode> */}
+                            <Outlet />
+                            {/* </React.StrictMode> */}
                         </Suspense>
                     </Content>
                     <Footer>

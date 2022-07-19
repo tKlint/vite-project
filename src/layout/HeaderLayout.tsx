@@ -4,7 +4,17 @@ import {
     NotificationOutlined,
     SettingOutlined
 } from '@ant-design/icons';
-import { Avatar, Badge, Button, Drawer, Dropdown, Menu, message, Modal } from 'antd';
+import {
+    Avatar,
+    Badge,
+    Button,
+    Drawer,
+    Dropdown,
+    Menu,
+    message,
+    Modal,
+    notification
+} from 'antd';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useEffect, useRef, useState } from 'react';
 
@@ -15,11 +25,11 @@ import { logout } from '../store/login';
 
 import logo from '../../public/asset/logo.png';
 import './layout.less';
+import { socketEvent } from './BasicLayout';
 
 const HeaderLayout: React.FC<Record<string, unknown>> = () => {
     const user = useAppSelector((state) => state.userReucer);
     const dispatch = useAppDispatch();
-    const { sendMessage, lastMessage, readyState } = useWebSocket('ws://127.0.0.1:3002');
     const { nickName, avatarUrl } = user;
     const [draweVisible, setDraweVisible] = useState(false);
     const [messageList, setMessageList] = useState<Message[]>([]);
@@ -29,27 +39,26 @@ const HeaderLayout: React.FC<Record<string, unknown>> = () => {
         Menu_Setting = 'setting'
     }
 
-    const messageInp = useRef<string>('');
     useEffect(() => {
-        console.log('HeaderLayout, effect');
-
         dispatch(fetchUser());
+        socketEvent.subcribe((lastMessage: MessageEvent<any>) => {
+            let messageData;
+            if (typeof lastMessage === 'string') {
+                // 自己发送的出去的消息
+                messageData = JSON.parse(lastMessage);
+                return;
+            }
+            messageData = JSON.parse(lastMessage.data);
+
+            if (messageData.formUUID !== user.uuid) {
+                // 收到别人发送的消息
+                notification.info({
+                    message: '您收到了一条消息',
+                    description: messageData.data
+                });
+            }
+        });
     }, []);
-
-    useEffect(() => {
-        if (lastMessage !== null) {
-            //   setMessageHistory((prev) => prev.concat(lastMessage));
-            console.log(lastMessage, 'lss');
-        }
-    }, [lastMessage]);
-
-    const connectionStatus = {
-        [ReadyState.CONNECTING]: 'Connecting',
-        [ReadyState.OPEN]: 'Open',
-        [ReadyState.CLOSING]: 'Closing',
-        [ReadyState.CLOSED]: 'Closed',
-        [ReadyState.UNINSTANTIATED]: 'Uninstantiated'
-    }[readyState];
 
     const onDrawerOpen = () => {
         setDraweVisible(true);

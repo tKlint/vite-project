@@ -1,4 +1,6 @@
 import { RequestOptionsInit } from 'umi-request';
+import { PaginationParams } from '@/util/index.d';
+import { SearchUserInfo } from '@/pages/contacts/components/index.d';
 import { LoginData } from '../pages/login';
 import { RegisterStatus } from '../pages/login/register';
 import { UserState } from '../store/user';
@@ -33,6 +35,33 @@ const API = {
         }>('/register', {
             data,
             method: 'POST',
+            ...options
+        }),
+    '/CONTACT/FETECH_CONTACT_LIST_GET': (
+        params?: PaginationParams<FriendsListFieldType>,
+        options: RequestOptionsInit = {}
+    ) =>
+        request<FriendsListFieldType[]>('/getContacts', {
+            method: 'GET',
+            params,
+            ...options
+        }),
+    '/USER/SEARCH_USER_GET': (
+        params: { keyword: string },
+        options: RequestOptionsInit = {}
+    ) =>
+        request<SearchUserInfo[]>('/searchUser', {
+            method: 'GET',
+            params,
+            ...options
+        }),
+    '/USER/SEND_CONTACT_REQUEST': (
+        params: { targetUUID: string; verifyMessage?: string },
+        options: RequestOptionsInit = {}
+    ) =>
+        request('/sendContactRequest', {
+            method: 'POST',
+            params,
             ...options
         })
 };

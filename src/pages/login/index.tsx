@@ -12,7 +12,7 @@ import {
 import { LoginFormPage, ProFormCaptcha, ProFormText } from '@ant-design/pro-components';
 import { Button, Divider, message, Modal, Space, Tabs } from 'antd';
 import { CSSProperties, useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { Navigate, Outlet, useNavigate } from 'react-router';
 import { AccountFields } from './components/Account';
 import { EmailFields } from './components/Email';
 
@@ -59,6 +59,9 @@ const Login: React.FC<Record<string, unknown>> = () => {
         activeSubTitle,
         activeActionText
     } = loginConst;
+
+    const storageToken = localStorage.getItem('access-token');
+    const isLogin = storageToken || accessToken;
     const watchLoginState = () => {
         if (!updateTimestamp) {
             return;
@@ -91,9 +94,15 @@ const Login: React.FC<Record<string, unknown>> = () => {
     useEffect(() => {
         watchLoginState();
     }, [updateTimestamp, status]);
+
+    if (isLogin) {
+        return <Navigate to="/" />;
+    }
+
     if (!window.location.pathname.endsWith('/login')) {
         return <Outlet />;
     }
+
     const submit = (form: EmailFields & AccountFields) => {
         dispatch(
             userLogin({

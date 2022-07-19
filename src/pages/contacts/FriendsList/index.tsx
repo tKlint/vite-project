@@ -1,40 +1,58 @@
-import ITable from '@/components/ITable';
+// import ITable from '@/components/ITable';
+
+import API from '@/service/api';
+import { UserAddOutlined } from '@ant-design/icons';
+import { DrawerForm, ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button } from 'antd';
+import { useEffect } from 'react';
+
+import SearchInputStatus from '../components/UserListCard';
 
 const FriendsList: React.FC<Record<string, never>> = () => {
-    enum Keys {
-        Z = 'z',
-        B = 'b'
-    }
+    const columns: ProColumns<FriendsListFieldType>[] = [
+        {
+            title: '备注名',
+            dataIndex: 'remarkName'
+        },
+        {
+            title: '昵称',
+            dataIndex: 'nickName'
+        },
+        {
+            title: '账号',
+            dataIndex: 'account'
+        },
+        {
+            title: '邮箱',
+            dataIndex: 'email'
+        }
+    ];
 
+    const fetechContactsList = () => {
+        API['/CONTACT/FETECH_CONTACT_LIST_GET']({
+            current: 1,
+            pageSize: 20
+        });
+    };
+
+    useEffect(() => {
+        fetechContactsList();
+    }, []);
+    const drawerTrigger = (
+        <DrawerForm
+            title="添加联系人"
+            trigger={
+                <Button icon={<UserAddOutlined />} type="primary">
+                    添加联系人
+                </Button>
+            }
+        >
+            <SearchInputStatus />
+        </DrawerForm>
+    );
     return (
         <div>
-            <ITable
-                key="id"
-                colmuns={[
-                    {
-                        title: '序号',
-                        key: 'idx',
-                        search: true,
-                        formType: 'input'
-                    },
-                    {
-                        title: '姓名',
-                        key: 'name',
-                        search: true,
-                        formType: 'select',
-                        valueEnum: {
-                            [Keys.B]: {
-                                text: '啊吧宝贝',
-                                disabled: false
-                            },
-                            [Keys.Z]: {
-                                text: '啊ZZZ',
-                                disabled: false
-                            }
-                        }
-                    }
-                ]}
-            />
+            <ProTable columns={columns} toolBarRender={() => [drawerTrigger]} />
         </div>
     );
 };
