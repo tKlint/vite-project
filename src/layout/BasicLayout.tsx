@@ -123,7 +123,10 @@ const BasicLayout: React.FC<Record<string, never>> = () => {
                         defaultSelectedKeys={[window.location.pathname]}
                         mode="inline"
                         theme="light"
-                        items={createMenuItemsWithRouter(router[0].children || [], 'app')}
+                        items={createMenuItemsWithRouter(
+                            window.routerTree.children || [],
+                            'app'
+                        )}
                     />
                 </Sider>
                 <Layout>
