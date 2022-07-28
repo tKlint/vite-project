@@ -1,31 +1,25 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable import/extensions */
-import React, { useEffect, useState } from 'react';
+import React, { lazy, ReactNode, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, useRoutes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
+import { IRoutes, router } from './routers/router';
+import NotFound from './pages/404';
 import store from './store/index';
 import 'antd/dist/antd.css';
 import './index.css';
 
-import { dispatchRouter, router } from './routers/router';
-import Login from './pages/login';
-import Register from './pages/login/register';
-import SecurityLayout from './layout/SecurityLayout';
-import { useAppDispatch } from './store/hooks';
+type RouteResponse = {
+    path: string;
+    name: string;
+    component?: string;
+    index?: boolean;
+    children?: RouteResponse[];
+};
 
-// const routerChilren = dispatchRouter(router);
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-// ReactDOM.createRoot(document.getElementById('root')!).render(
-//     <Provider store={store}>
-//         <BrowserRouter>
-//             <Routes>{routerChilren}</Routes>
-//         </BrowserRouter>
-//     </Provider>
-// );
-
-const mockRoutes = () => {
+const mockRoutes = (): Promise<RouteResponse[]> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve([
@@ -36,79 +30,95 @@ const mockRoutes = () => {
                     index: true
                 },
                 {
-                    path: '/requestList',
-                    name: 'dashboard1',
-                    component: '/dashboard/index',
-                    // index: true
+                    path: 'contact',
+                    name: 'contact',
+                    children: [
+                        {
+                            path: 'friendsList',
+                            name: 'friendsList',
+                            component: '/contacts/FriendsList/index'
+                        },
+                        {
+                            path: 'requestList',
+                            name: 'requestList',
+                            component: '/contacts/RequestList/index'
+                        }
+                    ]
                 }
             ]);
-        }, 3000);
+        }, 2000);
     });
 };
 
-const App = () => {
-    const [routes, setRoutes] = useState<JSX.Element[]>([]);
-    const [loading, setLoading] = useState(true);
-    const modules = import.meta.glob('@/pages/*/*');
-    const pollRoutes = (items: any[], parentPath = '') => {
-        return items.map((item) => {
-            const props = {
-                ...item,
-                children: null
-                // element: null
-            };
-            if (item.component) {
-                const Component = modules[`@/pages${item.component}`];
-                // if your project use webpack
-                // const Component = lazy(() => import('@/pages/dashboard/index'));
-                props.element = Component;
-            }
-            if (parentPath) {
-                props.path = `${parentPath}${item.path}`;
-            }
+interface ModuleElemnet {
+    (): Promise<{
+        default: React.FC<Record<string, unknown>>;
+    }>;
+}
 
-            return (
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                <Route {...props} key={props.path}>
-                    {item.children && dispatchRouter(item.children, props.path)}
-                </Route>
-            );
+const App = (): React.ReactElement | null => {
+    const [routes, setRoutes] = useState<IRoutes[]>([]);
+    const modules = import.meta.glob('./pages/**/*');
+    const modulesMap = new Map<string, string>();
+
+    Object.keys(modules).forEach((key) => {
+        // 只支持这4中组件
+        const matchedGroup = key.match(/\.(tsx|ts|jsx|js)$/);
+        if (matchedGroup !== null) {
+            modulesMap.set(key.slice(0, matchedGroup.index), key);
+            modulesMap.set(key, key);
+        }
+    });
+
+    const pollRoutes = (routesList: RouteResponse[], parentPath = ''): IRoutes[] => {
+        return routesList.map((route) => {
+            const { path, component, name, index, children } = route;
+            const pathLinked = parentPath ? `${parentPath}/` : parentPath;
+            const routeProps: IRoutes = {
+                path,
+                name,
+                index: index || undefined,
+                children: children
+                    ? pollRoutes(children, `${pathLinked}${path}`)
+                    : undefined
+            };
+            if (component) {
+                const moduleKey = modulesMap.get(`./pages${component}`);
+                let Component: ReactNode = <NotFound path={`${parentPath}/${path}`} />;
+                if (moduleKey) {
+                    const ModuleComponent = lazy<React.FC>(
+                        modules[moduleKey] as unknown as ModuleElemnet
+                    );
+                    Component = <ModuleComponent />;
+                }
+                routeProps.element = Component;
+            }
+            return routeProps;
         });
     };
-    const dispatch = useAppDispatch();
     const fetechRoutes = async () => {
-        const serverSideRoutes = (await mockRoutes()) as any[];
+        const serverSideRoutes = await mockRoutes();
         const routerTree = pollRoutes(serverSideRoutes);
-        setRoutes(routerTree);
-        // @ts-ignore
-        window.routerTree = routerTree;
-        setLoading(false);
+        router[0].children = routerTree;
+        setRoutes(router);
     };
     useEffect(() => {
         fetechRoutes();
     }, []);
-    if (loading) {
-        return <div>加载中....</div>;
-    }
 
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<SecurityLayout />}>
-                    {routes}
-                    <Route path="*" element={<div>405</div>} />
-                </Route>
-                <Route path="/login" element={<Login />}>
-                    <Route path="/login/register" element={<Register />} />
-                </Route>
-                <Route path="*" element={<div>404</div>} />
-            </Routes>
-        </BrowserRouter>
-    );
+    if (routes.length === 0) {
+        // TODO
+    }
+    return useRoutes(routes) as React.ReactElement;
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
-        <App />
+        <BrowserRouter>
+            {/* <React.Suspense fallback={<div>loading</div>}> */}
+            <App />
+            {/* <APP /> */}
+            {/* </React.Suspense> */}
+        </BrowserRouter>
     </Provider>
 );

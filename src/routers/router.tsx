@@ -1,4 +1,4 @@
-import { Route } from 'react-router-dom';
+import { Route, RouteObject } from 'react-router-dom';
 import SecurityLayout from '@/layout/SecurityLayout';
 import FriendsList from '@/pages/contacts/FriendsList';
 import Dashboard from '@/pages/dashboard';
@@ -16,10 +16,16 @@ export interface RouterConfig {
 }
 
 export type RoutersConfig = {
-    children?: RoutersConfig[];
-} & RouterConfig;
+    name?: string;
+} & RouteObject;
 
-export const router: RoutersConfig[] = [
+export interface IRoutes extends RouteObject {
+    name: string;
+    children?: IRoutes[];
+}
+// let i:I;
+// i.name
+export const router: IRoutes[] = [
     {
         path: '/',
         name: 'app',
