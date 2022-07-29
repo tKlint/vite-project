@@ -2,16 +2,19 @@ import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers, AnyAction } from 'redux';
 import loginReducer, { LoginState } from './login';
 import userReucer, { UserState } from './user';
+import routerReducer, { RouterState } from './router';
 
 const rootReduce = combineReducers<
     {
         loginReducer: LoginState;
         userReucer: UserState;
+        routerReducer: RouterState;
     },
     AnyAction
 >({
     loginReducer,
-    userReucer
+    userReucer,
+    routerReducer
 });
 
 const store = configureStore({

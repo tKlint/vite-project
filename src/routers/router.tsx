@@ -1,10 +1,9 @@
 import { Route, RouteObject } from 'react-router-dom';
 import SecurityLayout from '@/layout/SecurityLayout';
-import FriendsList from '@/pages/contacts/FriendsList';
-import Dashboard from '@/pages/dashboard';
 import Login from '@/pages/login';
 import Register from '@/pages/login/register';
-import RequestList from '@/pages/contacts/RequestList';
+import NotFound from '@/pages/404';
+import Loading from '../components/Loding';
 
 export interface RouterConfig {
     caseSensitive?: boolean;
@@ -20,11 +19,9 @@ export type RoutersConfig = {
 } & RouteObject;
 
 export interface IRoutes extends RouteObject {
-    name: string;
+    name?: string;
     children?: IRoutes[];
 }
-// let i:I;
-// i.name
 export const router: IRoutes[] = [
     {
         path: '/',
@@ -33,25 +30,7 @@ export const router: IRoutes[] = [
         children: [
             {
                 path: '/',
-                name: 'dashboard',
-                element: <Dashboard />,
-                index: true
-            },
-            {
-                path: 'contact',
-                name: 'contact',
-                children: [
-                    {
-                        path: 'friendsList',
-                        name: 'friendsList',
-                        element: <FriendsList />
-                    },
-                    {
-                        path: 'requestList',
-                        name: 'requestList',
-                        element: <RequestList />
-                    }
-                ]
+                element: <Loading width={500} height={500} />
             }
         ]
     },
@@ -67,6 +46,10 @@ export const router: IRoutes[] = [
                 index: true
             }
         ]
+    },
+    {
+        path: '*',
+        element: <NotFound path="/" />
     }
 ];
 

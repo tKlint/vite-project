@@ -8,7 +8,7 @@ import { useAppSelector } from '@/store/hooks';
 import { WebSocketHook } from 'react-use-websocket/dist/lib/types';
 import Loading from '../components/Loding';
 
-import { router, RoutersConfig } from '../routers/router';
+import { RoutersConfig } from '../routers/router';
 import HeaderLayout from './HeaderLayout';
 import FootLayout from './FootLayout';
 import menusConfig from '../local/menu.config.json';
@@ -27,6 +27,7 @@ export const sockets: Partial<WebSocketHook<MessageEvent<any>>> = {
 const BasicLayout: React.FC<Record<string, never>> = () => {
     const navigate = useNavigate();
     const user = useAppSelector((state) => state.userReucer);
+    const routes = useAppSelector((state) => state.routerReducer);
     const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
         'ws://127.0.0.1:3002',
         {
@@ -123,18 +124,13 @@ const BasicLayout: React.FC<Record<string, never>> = () => {
                         defaultSelectedKeys={[window.location.pathname]}
                         mode="inline"
                         theme="light"
-                        items={createMenuItemsWithRouter(
-                            window.routerTree.children || [],
-                            'app'
-                        )}
+                        items={createMenuItemsWithRouter(routes.routes, 'app')}
                     />
                 </Sider>
                 <Layout>
                     <Content style={{ padding: 16 }}>
                         <Suspense fallback={<Loading />}>
-                            {/* <React.StrictMode> */}
                             <Outlet />
-                            {/* </React.StrictMode> */}
                         </Suspense>
                     </Content>
                     <Footer>

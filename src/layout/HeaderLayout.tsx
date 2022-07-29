@@ -19,7 +19,6 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useEffect, useRef, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchUser } from '../store/user';
 import MessageList, { Message } from '../components/MessageList';
 import { logout } from '../store/login';
 
@@ -40,7 +39,6 @@ const HeaderLayout: React.FC<Record<string, unknown>> = () => {
     }
 
     useEffect(() => {
-        dispatch(fetchUser());
         socketEvent.subcribe((lastMessage: MessageEvent<any>) => {
             let messageData;
             if (typeof lastMessage === 'string') {
