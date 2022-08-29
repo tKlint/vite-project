@@ -63,7 +63,6 @@ const loginReducer = createSlice<LoginState, LoginReducer, 'login'>({
         [Reducers.LOGIN]: (state) => state,
         [Reducers.LOGOUT]: () => {
             localStorage.removeItem('access-token');
-            window.location.href = '/login';
             return { status: LoginStatus.ERROR, token: '' };
         }
     },
